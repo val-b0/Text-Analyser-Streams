@@ -18,18 +18,26 @@ import java.util.stream.Stream;
  * averages, and grouping data alphabetically.
  */
 public class Functionality {
+    private final String inFile;
 
-
+    /**
+     * Constructor to initialize the input file path.
+     *
+     * @param filePath The path to the input file to read.
+     */
+    public Functionality(String filePath) {
+        this.inFile = filePath;
+    }
     /**
      * Finds the first line in the file that contains the specified text.
      *
-     * @param inFile The path to the input file to read.
      * @param text   The text to search for in the file.
      * @return An Optional containing the first line with the specified text, or empty if not found.
      * @throws IOException If an I/O error occurs while reading the file.
      */
-    public static Optional<String> findLine(String inFile, String text) throws IOException {
-        try (Stream<String> lines = Files.lines(Paths.get(inFile))) {
+
+    public Optional<String> findLine(String text) throws IOException {
+        try (Stream<String> lines = Files.lines(Paths.get(this.inFile))) {
             return lines.filter(e -> e.contains(text)).findFirst();
         }
     }
@@ -37,13 +45,12 @@ public class Functionality {
     /**
      * Finds all lines in the file that contain the specified text.
      *
-     * @param inFile The path to the input file to read.
      * @param text   The text to search for in the file.
      * @return A list of all lines containing the specified text.
      * @throws IOException If an I/O error occurs while reading the file.
      */
-    public static List<String> findLines(String inFile, String text) throws IOException {
-        try (Stream<String> lines = Files.lines(Paths.get(inFile))) {
+    public List<String> findLines(String text) throws IOException {
+        try (Stream<String> lines = Files.lines(Paths.get(this.inFile))) {
             return lines.filter(e -> e.contains(text)).toList();
         }
     }
@@ -51,12 +58,11 @@ public class Functionality {
     /**
      * Writes all non-empty lines from the input file to the output file.
      *
-     * @param inFile  The path to the input file to read.
      * @param outFile The path to the output file to write to.
      * @throws IOException If an I/O error occurs while reading or writing files.
      */
-    public static void writeNoEmptyLines(String inFile, String outFile) throws IOException {
-        try (Stream<String> lines = Files.lines(Paths.get(inFile))) {
+    public void writeNoEmptyLines(String outFile) throws IOException {
+        try (Stream<String> lines = Files.lines(Paths.get(this.inFile))) {
             Files.write(Paths.get(outFile), lines.filter(e -> !e.isEmpty()).toList(), StandardCharsets.UTF_8, StandardOpenOption.CREATE);
         }
     }
@@ -65,13 +71,12 @@ public class Functionality {
      * Creates a stream of distinct, sorted words from the input file.
      * Words are extracted after splitting lines based on common delimiters and filtering out duplicates or numbers.
      *
-     * @param inFile The path to the input file to read.
      * @return A Stream of unique, sorted words in lowercase.
      * @throws IOException If an I/O error occurs while reading the file.
      */
-    public static Stream<String> wordStream(String inFile) throws IOException {
-        return Files.lines(Paths.get(inFile))
-                .map(s -> s.split("[ .,;?!.:()-]"))
+    public Stream<String> wordStream() throws IOException {
+        return Files.lines(Paths.get(this.inFile))
+                .map(s -> s.split("[ ,;?!.:()-]"))
                 .flatMap(Arrays::stream)
                 .filter(e -> !e.isEmpty())
                 .map(String::toLowerCase)
@@ -83,23 +88,21 @@ public class Functionality {
     /**
      * Returns a list of distinct, sorted words from the input file.
      *
-     * @param inFile The path to the input file to read.
      * @return A list of unique, sorted words in lowercase.
      * @throws IOException If an I/O error occurs while reading the file.
      */
-    public static List<String> words(String inFile) throws IOException {
-        return wordStream(inFile).toList();
+    public List<String> words() throws IOException {
+        return wordStream().toList();
     }
 
     /**
      * Calculates the average length of lines in the input file.
      *
-     * @param inFile The path to the input file to read.
      * @return The average line length as a double.
      * @throws IOException If an I/O error occurs while reading the file.
      */
-    public static double averageLineLength(String inFile) throws IOException {
-        try (Stream<String> lines = Files.lines(Paths.get(inFile))) {
+    public double averageLineLength() throws IOException {
+        try (Stream<String> lines = Files.lines(Paths.get(this.inFile))) {
             return lines.collect(Collectors.averagingDouble(String::length));
         }
     }
@@ -107,13 +110,12 @@ public class Functionality {
     /**
      * Calculates the average number of words per line in the input file.
      *
-     * @param inFile The path to the input file to read.
      * @return The average number of words per line as a double.
      * @throws IOException If an I/O error occurs while reading the file.
      */
-    public static double averageWordsInLine(String inFile) throws IOException {
-        try (Stream<String> lines = Files.lines(Paths.get(inFile))) {
-            return lines.map(s -> s.split("[ .,;?!.:()-]"))
+    public double averageWordsInLine() throws IOException {
+        try (Stream<String> lines = Files.lines(Paths.get(this.inFile))) {
+            return lines.map(s -> s.split("[ ,;?!.:()-]"))
                     .collect(Collectors.averagingDouble(value -> value.length));
         }
     }
@@ -121,11 +123,10 @@ public class Functionality {
     /**
      * Groups words from the input file by their starting character alphabetically.
      *
-     * @param inFile The path to the input file to read.
      * @return A map where keys are the first characters of words, and values are lists of words starting with that character.
      * @throws IOException If an I/O error occurs while reading the file.
      */
-    public static Map<Character, List<String>> alphaGrouping(String inFile) throws IOException {
-        return wordStream(inFile).collect(Collectors.groupingBy(e -> e.charAt(0)));
+    public Map<Character, List<String>> alphaGrouping() throws IOException {
+        return wordStream().collect(Collectors.groupingBy(e -> e.charAt(0)));
     }
 }
